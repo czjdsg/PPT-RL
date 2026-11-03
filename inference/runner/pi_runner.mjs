@@ -11,7 +11,7 @@ const start=performance.now();
 const controllerPid=process.ppid;
 // Stop orphan computation if the owning lease client exits unexpectedly.
 setInterval(()=>{if(process.ppid!==controllerPid)process.kill(process.pid,'SIGTERM');},1000).unref();
-const harness=await createHarness({cwd,logDir,python,parser:path.join(here,'read_text.py'),maxTurns,sampling:config.sampling||{}});
+const harness=await createHarness({cwd,logDir,python,parser:path.join(here,'read_text.py'),maxTurns,sampling:config.sampling||{},toolPolicy:config.tool_policy||{}});
 const {session}=harness;
 const events=fs.openSync(path.join(logDir,'events.jsonl'),'wx');
 let responses=0,tools=0,imageBlocks=0,thinkingBlocks=0,thinkingChars=0,finalMessage=null;

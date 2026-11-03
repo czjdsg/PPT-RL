@@ -8,7 +8,7 @@ import {promisify} from 'node:util';
 import {Type} from 'typebox';
 import {
   createAgentSession, DefaultResourceLoader, ModelRuntime, SessionManager,
-  SettingsManager, createReadToolDefinition,
+  SettingsManager, createReadToolDefinition, createBashToolDefinition,
 } from '@earendil-works/pi-coding-agent';
 
 const execFileAsync = promisify(execFile);
@@ -90,7 +90,27 @@ export function makeReadTool(cwd, python, parser, auditPath) {
   };
 }
 
-export async function createHarness({cwd,logDir,python,parser,maxTurns=80,systemPromptOverride=null,sampling={}}) {
+export function makeBoundedBashTool(cwd, seconds, auditPath) {
+  if (!Number.isFinite(seconds) || seconds<=0) throw new Error('bash timeout must be positive seconds');
+  const native=createBashToolDefinition(cwd);
+  return {...native,
+    description:native.description+` Each call is limited to at most ${seconds} seconds, including when timeout is omitted.`,
+    async execute(id,args,signal,onUpdate,ctx){
+      const requested=args.timeout;
+      const effective=Number.isFinite(requested)&&requested>0?Math.min(requested,seconds):seconds;
+      fs.appendFileSync(auditPath,JSON.stringify({at_utc:new Date().toISOString(),event:'bash_timeout_applied',tool_call_id:id,
+        requested_timeout_seconds:requested??null,effective_timeout_seconds:effective})+'\n');
+      try{return await native.execute(id,{...args,timeout:effective},signal,onUpdate,ctx);}
+      catch(error){
+        fs.appendFileSync(auditPath,JSON.stringify({at_utc:new Date().toISOString(),event:'bash_error',tool_call_id:id,
+          effective_timeout_seconds:effective,error:String(error?.message||error)})+'\n');
+        throw error;
+      }
+    },
+  };
+}
+
+export async function createHarness({cwd,logDir,python,parser,maxTurns=80,systemPromptOverride=null,sampling={},toolPolicy={}}) {
   const agentDir = path.join(logDir,'agent-config');
   fs.mkdirSync(agentDir,{recursive:true});
   const modelConfig = {providers:{'presentbench-local':{
@@ -117,14 +137,17 @@ export async function createHarness({cwd,logDir,python,parser,maxTurns=80,system
   const policy = 'Read instructions.md and all sources listed in materials.json, including supplied source images. Complete the user query using local tools. Create the final genuine PowerPoint at outputs/presentation.pptx; python-pptx is installed. Ground content in the supplied materials, preserve figure captions and credits, and use relevant original figures in the deck. Original source PDFs may be viewed as images, rendered, cropped, and have embedded images extracted: use read with render=true, pages and optional crop=x0,y0,x1,y1 in PDF points, or run python pdf_tools.py --help. Keep source-derived images under materials/ so they are readable. Preserve source scripts and verify the PPTX opens with at least one slide. Native read/write/edit/bash/grep/find remain available. Generated presentation preview-image feedback is disabled; source-material visual inspection is allowed. Keep temporary files in scratch/ and do not read other cases or change model services. Never launch other agents. Files marked style_reference_only are visual design references, never factual content sources.';
   const resourceLoader=new DefaultResourceLoader({cwd,agentDir,settingsManager,
     noExtensions:true,noSkills:true,noPromptTemplates:true,noThemes:true,noContextFiles:true,
-    appendSystemPromptOverride:()=>[systemPromptOverride || policy],
+    appendSystemPromptOverride:()=>[systemPromptOverride || policy,
+      ...(toolPolicy.finish_after_structural_export?["Plan the layout before export. After creating outputs/presentation.pptx, perform one structural open check. If it passes, return the final path and end the task. Rebuild only to resolve an actual export or structural failure; avoid repeated speculative layout-analysis loops."]:[])],
   });
   await resourceLoader.reload();
   const read = makeReadTool(cwd,python,parser,path.join(logDir,'read-audit.jsonl'));
+  const boundedBash=Number.isFinite(toolPolicy.bash_timeout_seconds)&&toolPolicy.bash_timeout_seconds>0
+    ?makeBoundedBashTool(cwd,toolPolicy.bash_timeout_seconds,path.join(logDir,'tool-policy-audit.jsonl')):null;
   const {session,modelFallbackMessage}=await createAgentSession({cwd,agentDir,modelRuntime,
     model,thinkingLevel:'medium',settingsManager,resourceLoader,
     sessionManager:SessionManager.create(cwd,path.join(logDir,'sessions')),
-    tools:['read','bash','edit','write','grep','find'],customTools:[read],
+    tools:['read','bash','edit','write','grep','find'],customTools:[read,...(boundedBash?[boundedBash]:[])],
   });
   if (modelFallbackMessage || session.model.id !== MODEL || session.thinkingLevel !== 'medium') {
     session.dispose(); throw new Error('Unexpected model fallback or thinking mode');
@@ -173,6 +196,7 @@ export async function createHarness({cwd,logDir,python,parser,maxTurns=80,system
     timeout_seconds:null,wall_clock_limit_enabled:false,pdf_read_mode:'text_and_source_visuals',pdf_source_rendering:true,pdf_source_image_extraction:true,pdf_source_region_crop:true,
     source_images_allowed:true,generated_image_read_policy:'Only source images under materials/ are readable; other image reads blocked.',
     pi_package:'@earendil-works/pi-coding-agent',pi_version:'1.4.0',isolated_probe:!!systemPromptOverride,
+    tool_policy:toolPolicy,
   });
   return {session,read,stats:()=>({completed_turns:completedTurns,turn_limit_reached:limitReached,provider_requests:providerRequests})};
 }

@@ -1,6 +1,6 @@
 {
-  "harness.mjs": "7633cd3f258d745aec75be6e2ecbed5e4710b25b386742a51caa7a21a79b831e",
-  "pi_runner.mjs": "cfe4718654a21d8c76e7355644178d9cbee3af5161c20d983abfe5f4dfac72bf",
+  "harness.mjs": "28ed92b19caae399513adba5b685d4a813ec764146580999dff792f095c3f5d1",
+  "pi_runner.mjs": "1bf178e83ff19d5424713084a5b5f98d3e0dde9fa5a236a16b76e43590c91aa8",
   "read_text.py": "ce63af2f5c591f3b5c34b81f97e7e6d09c24b5d753f92d256ab3498601a6d8d0",
   "pdf_tools.py": "a10d94b499027a583059e4c49f1bc88d075cf558bfc5da498b7358ca1ad5a933",
   "worker_core.py": "d4d8397a58e78bdaad2bb09bd3061234ce60efea03c35c44194fc24d75376c69",

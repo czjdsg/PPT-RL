@@ -117,10 +117,13 @@ def main():
             checkpoint('attempt_started', pair_id=pair_id, task_id=pair['task_id'], condition=condition)
             sampling = dict(plan['sampling'], base_seed=pair['base_seed'])
             result = run_inference(
-                rooted(root, pair['materials_dir']), active, model=plan['model'], endpoint=plan['endpoint'],
+                rooted(root, pair['materials_dir']), active, model=plan['model'], endpoint=pair.get('endpoint',plan['endpoint']),
                 query=pair['query'], sampling=sampling, max_turns=plan['max_turns'], node=args.node,
                 style_template=rooted(root, pair['style_template']['file']) if condition == 'template' else None,
                 style_pdf=rooted(root, pair['style_pdf']['file']) if condition == 'template' else None,
+                style_manifest=rooted(root,pair['style_manifest']['file']) if condition=='template' and pair.get('style_manifest') else None,
+                sandbox_image=plan.get('sandbox_image'),tool_policy=plan.get('tool_policy'),
+                sandbox_fonts=plan.get('sandbox_fonts'),
             )
             # Move rather than rewrite: original native logs retain their historical cwd.
             target.parent.mkdir(parents=True, exist_ok=True)

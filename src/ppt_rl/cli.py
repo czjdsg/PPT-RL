@@ -6,7 +6,7 @@ from .io import read_json,write_json
 def main():
     p=argparse.ArgumentParser(description='PPT-RL: infer -> text alignment -> disjoint groups -> screenshot duels -> reward tiers')
     sub=p.add_subparsers(dest='command',required=True)
-    q=sub.add_parser('infer');q.add_argument('--materials',type=Path,required=True);q.add_argument('--out',type=Path,required=True);q.add_argument('--config',type=Path);q.add_argument('--node');q.add_argument('--query');q.add_argument('--style-template',type=Path);q.add_argument('--style-pdf',type=Path)
+    q=sub.add_parser('infer');q.add_argument('--materials',type=Path,required=True);q.add_argument('--out',type=Path,required=True);q.add_argument('--config',type=Path);q.add_argument('--node');q.add_argument('--query');q.add_argument('--style-template',type=Path);q.add_argument('--style-pdf',type=Path);q.add_argument('--style-manifest',type=Path);q.add_argument('--sandbox-image')
     q=sub.add_parser('extract');q.add_argument('pptx',type=Path);q.add_argument('--out',type=Path,required=True)
     q=sub.add_parser('align');q.add_argument('--a',type=Path,required=True);q.add_argument('--b',type=Path,required=True);q.add_argument('--out',type=Path,required=True);q.add_argument('--endpoint',default='http://127.0.0.1:8099');q.add_argument('--model',default='qwen3.8-flash-next-unsloth-q8_0')
     for name in ['duel','rank']:
@@ -21,7 +21,7 @@ def main():
     if a.command=='infer':
         from .inference import run_inference,QUERY
         c=read_json(a.config) if a.config else {}
-        r=run_inference(a.materials,a.out,model=c.get('model','qwen3.8-flash-next-unsloth-q8_0'),endpoint=c.get('endpoint','http://127.0.0.1:8099'),sampling=c.get('sampling'),query=a.query or c.get('query',QUERY),max_turns=c.get('max_turns',80),node=a.node,style_template=a.style_template,style_pdf=a.style_pdf)
+        r=run_inference(a.materials,a.out,model=c.get('model','qwen3.8-flash-next-unsloth-q8_0'),endpoint=c.get('endpoint','http://127.0.0.1:8099'),sampling=c.get('sampling'),query=a.query or c.get('query',QUERY),max_turns=c.get('max_turns',80),node=a.node,style_template=a.style_template,style_pdf=a.style_pdf,style_manifest=a.style_manifest,sandbox_image=a.sandbox_image or c.get('sandbox_image'),tool_policy=c.get('tool_policy'),sandbox_fonts=c.get('sandbox_fonts'))
         print(json.dumps({k:r.get(k) for k in ['success','agent_state','pages','pptx_path','elapsed_seconds','error']},ensure_ascii=False))
         if not r['success']:raise SystemExit(1)
     elif a.command=='extract':

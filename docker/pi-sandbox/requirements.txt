@@ -1,0 +1,13 @@
+python-pptx==1.0.2
+PyMuPDF==1.27.2.3
+Pillow==12.0.0
+numpy==2.3.5
+matplotlib==3.10.8
+pandas==2.3.3
+scipy==1.16.3
+shapely==2.1.2
+lxml==6.0.2
+reportlab==4.4.4
+openpyxl==3.1.5
+CairoSVG==2.8.2
+graphviz==0.21
