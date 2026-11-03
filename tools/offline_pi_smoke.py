@@ -3,13 +3,13 @@
 import sys
 sys.dont_write_bytecode=True
 from pathlib import Path
-import argparse,json,tempfile,threading
+import argparse,json,tempfile,threading,subprocess
 from http.server import BaseHTTPRequestHandler,ThreadingHTTPServer
 from ppt_rl.inference import run_inference
 
 def main():
     p=argparse.ArgumentParser();p.add_argument('--node',required=True);p.add_argument('--out',type=Path,required=True)
-    p.add_argument('--sandbox-image');p.add_argument('--bind',default='127.0.0.1');p.add_argument('--exercise-timeout',action='store_true');a=p.parse_args()
+    p.add_argument('--sandbox-image');p.add_argument('--bind',default='127.0.0.1');p.add_argument('--exercise-timeout',action='store_true');p.add_argument('--through-proxy',action='store_true');a=p.parse_args()
     requests=[]
     class Handler(BaseHTTPRequestHandler):
         def log_message(self,*args):pass
@@ -33,17 +33,27 @@ def main():
             encoded=body.encode();self.send_response(200);self.send_header('Content-Type','text/event-stream');self.send_header('Content-Length',str(len(encoded)));self.end_headers();self.wfile.write(encoded)
     a.out.mkdir(parents=True,exist_ok=True);materials=a.out/'materials';materials.mkdir(exist_ok=True);(materials/'material.md').write_text('A synthetic fixture for offline SDK testing, not an experiment sample.\n')
     server=ThreadingHTTPServer((a.bind,0),Handler);thread=threading.Thread(target=server.serve_forever,daemon=True);thread.start()
-    try:r=run_inference(materials,a.out/'rollout',model='offline-pi-fixture',endpoint=f'http://{a.bind}:{server.server_port}',sampling={'temperature':1.0,'top_p':.95,'top_k':20,'base_seed':900000},node=a.node,sandbox_image=a.sandbox_image,tool_policy={'bash_timeout_seconds':2,'finish_after_structural_export':True} if a.exercise_timeout else {})
-    finally:server.shutdown();server.server_close();thread.join()
+    proxy=None;rollout=a.out/'rollout';endpoint=f'http://{a.bind}:{server.server_port}'
+    if a.through_proxy:
+        rollout=a.out/'active/pair01'
+        proxy=subprocess.Popen([sys.executable,str(Path(__file__).with_name('pi_recording_proxy.py')),'--root',str(a.out),'--host',a.bind,'--base-port','18980','--pairs','1','--upstream',endpoint],stdout=subprocess.PIPE,text=True)
+        assert json.loads(proxy.stdout.readline())['ready'];endpoint=f'http://{a.bind}:18981'
+    try:r=run_inference(materials,rollout,model='offline-pi-fixture',endpoint=endpoint,sampling={'temperature':1.0,'top_p':.95,'top_k':20,'base_seed':900000},node=a.node,sandbox_image=a.sandbox_image,tool_policy={'bash_timeout_seconds':2,'finish_after_structural_export':True} if a.exercise_timeout else {})
+    finally:
+        server.shutdown();server.server_close();thread.join()
+        if proxy:proxy.terminate();proxy.wait(timeout=10)
     count=3 if a.exercise_timeout else 2
     assert r['success'] and r['tool_calls']==(2 if a.exercise_timeout else 1) and r['pages']==1,r
     assert len(requests)==count and [x['seed'] for x in requests]==list(range(900000,900000+count))
     assert all(x['temperature']==1 and x['max_tokens']==32768 and x['thinking']['budget_tokens']==8192 for x in requests)
     if a.exercise_timeout:
-        audit=[json.loads(line) for line in (a.out/'rollout/logs/tool-policy-audit.jsonl').read_text().splitlines()]
+        audit=[json.loads(line) for line in (rollout/'logs/tool-policy-audit.jsonl').read_text().splitlines()]
         assert audit[0]['requested_timeout_seconds']==9999 and audit[0]['effective_timeout_seconds']==2
         assert any(x['event']=='bash_error' and 'timed out' in x['error'] for x in audit)
-    report={'status':'passed','synthetic_fixture':True,'real_model_calls':0,'pi_sdk':'1.4.0','provider_requests':count,'tool_calls':r['tool_calls'],'pptx_pages':1,'regular_payload_seeds_verified':True,'sandbox_image':a.sandbox_image,'timeout_clamp_exercised':a.exercise_timeout,'logs':str(a.out/'rollout/logs')}
+    if a.through_proxy:
+        captured=[json.loads(line) for line in (rollout/'logs/http-audit/requests.jsonl').read_text().splitlines()]
+        assert len(captured)==count and all(x['path'].startswith('/v1/messages?beta=') for x in captured)
+    report={'status':'passed','synthetic_fixture':True,'real_model_calls':0,'pi_sdk':'1.4.0','provider_requests':count,'tool_calls':r['tool_calls'],'pptx_pages':1,'regular_payload_seeds_verified':True,'sandbox_image':a.sandbox_image,'timeout_clamp_exercised':a.exercise_timeout,'native_beta_route_through_proxy':a.through_proxy,'logs':str(rollout/'logs')}
     (a.out/'verification.json').write_text(json.dumps(report,indent=2)+'\n');print(json.dumps(report))
 
 if __name__=='__main__':main()

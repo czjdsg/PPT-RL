@@ -9,6 +9,7 @@ import argparse,gzip,hashlib,json,threading,time
 from datetime import datetime,timezone
 from http.server import BaseHTTPRequestHandler,ThreadingHTTPServer
 from pathlib import Path
+from urllib.parse import urlsplit
 import requests
 
 def main():
@@ -23,10 +24,11 @@ def main():
             protocol_version='HTTP/1.0'
             def log_message(self,*args):pass
             def do_GET(self):
-                if self.path!='/health':self.send_error(404);return
+                if urlsplit(self.path).path!='/health':self.send_error(404);return
                 b=json.dumps({'ready':True,'pair_id':pair_id}).encode();self.send_response(200);self.send_header('Content-Type','application/json');self.send_header('Content-Length',str(len(b)));self.end_headers();self.wfile.write(b)
             def do_POST(self):
-                if self.path not in ['/v1/messages','/messages']:self.send_error(404);return
+                route=urlsplit(self.path)
+                if route.path not in ['/v1/messages','/messages']:self.send_error(404);return
                 active=root/'active'/pair_id
                 if not (active/'logs/runner-config.json').is_file():self.send_error(503,'No active attempt');return
                 n=int(self.headers.get('Content-Length','0'))
@@ -41,7 +43,8 @@ def main():
                     with (dest/'requests.jsonl').open('a') as stream:stream.write(json.dumps(request)+'\n')
                 started=time.monotonic();session=requests.Session();session.trust_env=False;status=None;error=None;headers_sent=False
                 try:
-                    with session.post(a.upstream.rstrip('/')+'/v1/messages',data=body,headers={'Content-Type':'application/json','x-api-key':'local-vllm-no-secret','anthropic-version':self.headers.get('anthropic-version','2023-06-01')},stream=True,timeout=(15,None)) as response:
+                    destination=a.upstream.rstrip('/')+'/v1/messages'+(('?'+route.query) if route.query else '')
+                    with session.post(destination,data=body,headers={'Content-Type':'application/json','x-api-key':'local-vllm-no-secret','anthropic-version':self.headers.get('anthropic-version','2023-06-01')},stream=True,timeout=(15,None)) as response:
                         status=response.status_code;self.send_response(status)
                         self.send_header('Content-Type',response.headers.get('Content-Type','text/event-stream'))
                         self.send_header('Cache-Control','no-cache');self.end_headers();headers_sent=True
