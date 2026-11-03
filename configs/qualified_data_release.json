@@ -1,0 +1,17 @@
+{
+  "repo_id": "yzxjb/ppt-sft",
+  "repo_type": "dataset",
+  "private": true,
+  "revision": "7201f4df82c632cf782337ea6b17c75d8fc4a5fb",
+  "prefix": "qualified/20261101-v1",
+  "config_name": "qualified_sft",
+  "manifest_sha256": "0cc1de3acf6709c156c4e62f845db15e9456a81efadcdbabf11f60ecbcb7f282",
+  "trajectories": 2497,
+  "training_windows": 4325,
+  "unique_images": 3373,
+  "all_train": true,
+  "source_snapshot_date": "2026-11-01",
+  "only_image_attachment_paths_rewritten": true,
+  "message_text_tools_and_loss_masks_preserved": true,
+  "new_experiment_data_included": false
+}

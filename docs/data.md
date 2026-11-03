@@ -15,3 +15,5 @@ HF仓库保持私有：`yzxjb/ppt-sft`。新default config为`qualified_sft`，�
 工具定义是结构化list，消息content为string；训练loader必须保留逐message loss字段。字面量`<image>`被保护为`\uE000PPT_LITERAL_IMAGE_TAG\uE001`，用`tools/sft_template_compat.py`恢复，避免把代码/日志里的标记误当图片附件。
 
 历史raw/index/catalog仍保留在HF原位置，和本次qualified subset是不同层级。输入材料遵循原来源条款，没有为所有材料指定统一许可证。仓库凭证只存在进程环境或隐藏stdin，不作为数据文件。
+
+已发布并逐文件核验的固定revision：`7201f4df82c632cf782337ea6b17c75d8fc4a5fb`，完整pin见`configs/qualified_data_release.json`。下载严格复现时传`--revision`。
