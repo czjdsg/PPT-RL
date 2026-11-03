@@ -21,5 +21,10 @@ def workspace_environment(work):
     """Route caches outside HOME without changing the user's HOME variable."""
     work=Path(work).resolve();cache=work/'scratch/cache';cache.mkdir(parents=True,exist_ok=True)
     env={k:v for k,v in os.environ.items() if not k.startswith(('HF_TOKEN','HUGGING_FACE_HUB_TOKEN','GITHUB_TOKEN','GH_TOKEN','OAI_SITES_','PB_COORD_','ANTHROPIC_','OPENAI_','CLAUDE_','PI_')) and k not in {'SSH_AUTH_SOCK','SSH_AGENT_PID','SSH_ASKPASS','GIT_ASKPASS','GIT_SSH_COMMAND'}}
-    env.update(TMPDIR=str(work/'scratch'),XDG_CACHE_HOME=str(cache),MPLCONFIGDIR=str(cache/'matplotlib'),PYTHONPYCACHEPREFIX=str(cache/'pycache'),PYTHONDONTWRITEBYTECODE='1')
+    env.update(TMPDIR=str(work/'scratch'),XDG_CACHE_HOME=str(cache),
+               XDG_CONFIG_HOME=str(work/'scratch/config'),XDG_DATA_HOME=str(work/'scratch/data'),
+               XDG_STATE_HOME=str(work/'scratch/state'),MPLCONFIGDIR=str(cache/'matplotlib'),
+               PYTHONPYCACHEPREFIX=str(cache/'pycache'),PYTHONDONTWRITEBYTECODE='1',
+               PIP_CACHE_DIR=str(cache/'pip'),UV_CACHE_DIR=str(cache/'uv'),npm_config_cache=str(cache/'npm'),
+               HF_HOME=str(cache/'huggingface'),HF_HUB_CACHE=str(cache/'huggingface/hub'))
     return env
