@@ -9,7 +9,8 @@ QUERY='Create a PPTX presentation in English based on the provided materials.'
 
 def run_inference(materials,out,model='qwen3.8-flash-next-unsloth-q8_0',endpoint='http://127.0.0.1:8099',query=QUERY,
                   sampling=None,max_turns=80,node=None,style_template=None,style_pdf=None,
-                  sandbox_image=None,tool_policy=None,style_manifest=None,sandbox_fonts=None):
+                  sandbox_image=None,tool_policy=None,style_manifest=None,sandbox_fonts=None,
+                  inline_content=False,reference_images=None,style_source_pdf=None,inline_content_max_characters=60000):
     materials=Path(materials).resolve();out=Path(out).resolve();sampling=dict(sampling or {})
     runner=Path(os.environ.get('PPT_RL_PI_RUNNER',Path(__file__).resolve().parents[2]/'inference/runner'))
     node=node or shutil.which('node')
@@ -28,22 +29,58 @@ def run_inference(materials,out,model='qwen3.8-flash-next-unsloth-q8_0',endpoint
         relative=source.relative_to(materials);target=work/'materials'/relative;target.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(source,target)
         inputs.append({'file':target.relative_to(work).as_posix(),'sha256':sha256(target),'role':'content_source'})
     if not inputs:raise ValueError('No material files were supplied')
-    if style_template:
-        source=Path(style_template).resolve();target=work/'materials/style_reference/template.pptx';target.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(source,target)
-        inputs.append({'file':target.relative_to(work).as_posix(),'sha256':sha256(target),'role':'style_reference_only'})
+    reference_folder=work/'materials/style_reference'
+    if style_template or style_pdf or style_manifest or reference_images or style_source_pdf:
+        reference_folder.mkdir(parents=True,exist_ok=True)
+        if style_template:
+            source=Path(style_template).resolve();target=reference_folder/'template.pptx';shutil.copyfile(source,target)
+            inputs.append({'file':target.relative_to(work).as_posix(),'sha256':sha256(target),'role':'style_reference_only'})
         if style_pdf:
             target=work/'materials/style_reference/reference.pdf';shutil.copyfile(style_pdf,target)
             inputs.append({'file':target.relative_to(work).as_posix(),'sha256':sha256(target),'role':'style_reference_only'})
         if style_manifest:
             target=work/'materials/style_reference/reference-manifest.json';shutil.copyfile(style_manifest,target)
             inputs.append({'file':target.relative_to(work).as_posix(),'sha256':sha256(target),'role':'style_reference_only'})
-        query+=' Use materials/style_reference/template.pptx as the target visual style. Use it for design only; derive factual content from the original content materials, not the template examples.'
+        if style_source_pdf:
+            target=reference_folder/'original-reference.pdf';shutil.copyfile(style_source_pdf,target)
+            inputs.append({'file':target.relative_to(work).as_posix(),'sha256':sha256(target),'role':'style_reference_only'})
+        if inline_content or not style_template:
+            query+=' Follow the visual style of the provided presentation reference. Use the reference only for design; derive factual content from the original content materials.'
+        else:query+=' Use materials/style_reference/template.pptx as the target visual style. Use it for design only; derive factual content from the original content materials, not the template examples.'
         if style_manifest:query+=' Preserve the supplied reference attribution in the final presentation credits. The reference PDF shows selected original reference pages; their mapping is in the reference manifest.'
+    initial_images=[]
+    for i,item in enumerate(reference_images or [],1):
+        source=Path(item['path']).resolve()
+        if item.get('sha256') and sha256(source)!=item['sha256']:raise ValueError('Reference image hash mismatch')
+        target=reference_folder/'model-views'/f'reference-{i:02d}{source.suffix.lower()}'
+        target.parent.mkdir(parents=True,exist_ok=True)
+        shutil.copyfile(source,target)
+        record={'file':target.relative_to(work).as_posix(),'sha256':sha256(target),'role':'style_reference_only',
+                'original_reference_page':item['page'],'mime_type':item.get('mime_type','image/png')}
+        inputs.append(record);initial_images.append(record)
+    assembled_prompt=None;delivery={'inline_content':bool(inline_content),'reference_images':initial_images}
+    if inline_content:
+        content=work/'materials/material.md'
+        text=content.read_text(encoding='utf-8')
+        if not text.strip() or len(text)>inline_content_max_characters:raise ValueError('Original material text is empty or exceeds the declared inline limit; it is never silently truncated')
+        delivery.update(content_file='materials/material.md',content_sha256=sha256(content),content_characters=len(text),content_complete=True)
+        assembled_prompt=query+'\n\nBEGIN FACTUAL CONTENT MATERIAL: materials/material.md\n'+text+'\nEND FACTUAL CONTENT MATERIAL\n'
+        if style_manifest:
+            metadata=read_json(reference_folder/'reference-manifest.json');credit=metadata.get('attribution')
+            if isinstance(credit,str) and credit.strip():assembled_prompt+='\nDesign-reference credit (design only, not factual task content):\n'+credit+'\n'
+            delivery['reference_manifest_sha256']=sha256(reference_folder/'reference-manifest.json')
+        if initial_images:
+            assembled_prompt+='\nThe attached reference images are design examples only. They do not supply facts for this task. Use these four pages as the primary visual guide; consult the full reference only for a specific asset or layout, rather than enumerating every page or theme. Image order and original reference page numbers:\n'
+            assembled_prompt+='\n'.join(f"{i}: {record['file']} — original page {record['original_reference_page']}" for i,record in enumerate(initial_images,1))+'\n'
+        (logs/'assembled-user-prompt.txt').write_text(assembled_prompt)
+        delivery['assembled_prompt_sha256']=sha256(logs/'assembled-user-prompt.txt')
+    write_json(logs/'initial-input-delivery.json',delivery)
     (work/'instructions.md').write_text(query+'\n');write_json(work/'materials.json',inputs)
     for name in ['read_text.py','pdf_tools.py']:shutil.copyfile(runner/name,work/name)
     (logs/'prompt.txt').write_text(query+'\n')
     config={'cwd':'/workspace/work' if sandbox_image else str(work),'log_dir':'/workspace/logs' if sandbox_image else str(logs),
-            'python':'/usr/local/bin/python' if sandbox_image else sys.executable,'max_turns':max_turns,'query':query,'sampling':sampling,'tool_policy':dict(tool_policy or {})}
+            'python':'/usr/local/bin/python' if sandbox_image else sys.executable,'max_turns':max_turns,'query':query,'sampling':sampling,'tool_policy':dict(tool_policy or {}),
+            'assembled_prompt':assembled_prompt,'initial_images':initial_images}
     write_json(logs/'runner-config.json',config)
     env=workspace_environment(work)
     env.update(PATH=os.pathsep.join([str(Path(sys.executable).parent),str(Path(node).resolve().parent) if node else '',env.get('PATH',os.defpath)]),PB_MODEL_ID=model,PB_MODEL_BASE_URL=endpoint,PI_CODING_AGENT_DIR=str(logs/'agent-config'),PI_OFFLINE='1',PI_SKIP_VERSION_CHECK='1')
@@ -67,14 +104,16 @@ def run_inference(materials,out,model='qwen3.8-flash-next-unsloth-q8_0',endpoint
     else:command=[node,str(runner/'pi_runner.mjs'),str(logs/'runner-config.json')]
     started=time.monotonic();result={'started_utc':datetime.now(timezone.utc).isoformat(),'model_id':model,'endpoint':endpoint,'pi_version':'1.4.0','query':query,'sampling':sampling,'input_files':inputs,'generated_preview_feedback':False,'style_template_supplied':bool(style_template),'success':False,
         'sandbox_image':sandbox_image,'container_name':container_name,'tool_policy':dict(tool_policy or {}),
-        'filesystem_scope':'One condition workspace plus read-only runner/dependency mounts; private container /tmp' if sandbox_image else 'Host process; not a full filesystem sandbox'}
+        'filesystem_scope':'One condition workspace plus read-only runner/dependency mounts; private container /tmp' if sandbox_image else 'Host process; not a full filesystem sandbox',
+        'initial_input_delivery':delivery,'style_reference_supplied':bool(style_template or style_pdf or reference_images),
+        'style_reference_kind':'pptx' if style_template else 'pdf' if style_pdf else 'images' if reference_images else None}
     process=None
     try:
         with (logs/'stdout.log').open('w') as stdout,(logs/'stderr.log').open('w') as stderr:
             process=subprocess.Popen(command,cwd=work,env=env,stdout=stdout,stderr=stderr,start_new_session=os.name=='posix')
             process.wait()
         native=read_json(logs/'runner-result.json') if (logs/'runner-result.json').exists() else {}
-        result.update(agent_state=native.get('status','failed'),exit_code=process.returncode,tool_calls=native.get('tool_calls',0),assistant_responses=native.get('assistant_responses',0))
+        result.update(agent_state=native.get('status','failed'),exit_code=process.returncode,tool_calls=native.get('tool_calls',0),assistant_responses=native.get('assistant_responses',0),automatic_protocol_continuations=native.get('automatic_protocol_continuations',0))
         pptx=work/'outputs/presentation.pptx'
         if pptx.is_file():
             if pptx.is_symlink() or not pptx.resolve().is_relative_to(work.resolve()) or pptx.stat().st_nlink!=1:raise ValueError('Final PPTX must be an independent regular file within the workspace')
