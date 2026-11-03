@@ -23,4 +23,3 @@ class FlashGate:
         fd=self.thread.fd
         try:fcntl.flock(fd,fcntl.LOCK_UN)
         finally:os.close(fd);self.thread.fd=None;self.local.release()
-

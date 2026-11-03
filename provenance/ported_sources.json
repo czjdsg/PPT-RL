@@ -98,14 +98,14 @@
       "original_name": "run_tournament.py",
       "original_sha256": "8b72e11b0415c2763530d012f9129ac4f7b35b92be7df152391927870452d3fe",
       "upstream_stage": "Recorded pipeline, configurable port",
-      "ported_sha256": "60f14a9456dc035263af6ce909129d9fecf55a164edab54a4b2f6205911dd0b8"
+      "ported_sha256": "062623757526e560343c235d22d6ff3c06c049eabdba4d99daf1c57d608de8d9"
     },
     {
       "component": "src/ppt_rl/remote_judge.py",
       "original_name": "remote_judge.py",
       "original_sha256": "0bf34defa2bbe8288d8172e50728fb2d731f732521260a91e40cbab5e373bf62",
       "upstream_stage": "Recorded pipeline, configurable port",
-      "ported_sha256": "0a2000803f48f8b89b0bb744220a0b75b48e2b4e422b8402834f38693a206ad6"
+      "ported_sha256": "99df4919f0375cd443f3cee0a5561b8bfda431a929f0eeb4a00d210e42c62c85"
     }
   ]
 }

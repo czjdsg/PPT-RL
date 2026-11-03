@@ -172,4 +172,3 @@ def run_match(players,cache,model,key,match,occurrence,pool):
                   decision_method=method,completed_utc=now(),score_by_player={record['canonical_a']:vote['wins_a'],record['canonical_b']:vote['wins_b']})
     atomic(path,record);event('match_complete',model=model,match=record['id'],winner=winner,loser=loser,score=record['score_by_player'],decision=method)
     return record
-

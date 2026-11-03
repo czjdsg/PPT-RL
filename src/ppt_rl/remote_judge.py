@@ -80,5 +80,3 @@ class Judge:
                     'input_policy':'Only current paired screenshots and A/B labels; no page text, pairing rationale, rubric, scores or earlier judgments.'}}
             save(out/'result.json',result);return result
         raise RuntimeError('API attempts exhausted; all attempts preserved')
-
-
