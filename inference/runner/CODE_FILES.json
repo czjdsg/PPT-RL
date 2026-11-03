@@ -1,0 +1,11 @@
+{
+  "harness.mjs": "7633cd3f258d745aec75be6e2ecbed5e4710b25b386742a51caa7a21a79b831e",
+  "pi_runner.mjs": "cfe4718654a21d8c76e7355644178d9cbee3af5161c20d983abfe5f4dfac72bf",
+  "read_text.py": "ce63af2f5c591f3b5c34b81f97e7e6d09c24b5d753f92d256ab3498601a6d8d0",
+  "pdf_tools.py": "a10d94b499027a583059e4c49f1bc88d075cf558bfc5da498b7358ca1ad5a933",
+  "worker_core.py": "d4d8397a58e78bdaad2bb09bd3061234ce60efea03c35c44194fc24d75376c69",
+  "queue_worker.py": "afc27ac73bedeee1f23d4d329d0e4513f39bdbeaa2f5e1870658b90604f2c91c",
+  "package.json": "4c8388ecded4f8f099ff7b1044cddc51dcde5500e82fbaed23fcf4876a1567ad",
+  "package-lock.json": "657ff14beb2884d120612a9f26ec7c9bd551b632357ed79df069027ab8305855",
+  "task-prompt.txt": "4302791569820236e64c5f274734fab60d55bf0e8ac31c7a2556cc779d905a21"
+}

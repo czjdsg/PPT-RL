@@ -1,0 +1,11 @@
+{
+  "model": "your-vision-model",
+  "endpoint": "https://your-provider.example/v1",
+  "protocol": "openai",
+  "api_key_env": "PPT_RL_JUDGE_API_KEY",
+  "match_model": "qwen3.8-flash-next-unsloth-q8_0",
+  "match_endpoint": "http://127.0.0.1:8099",
+  "orientation_seed": 20261103,
+  "concurrency": 3,
+  "tie_policy": "random_group_swap"
+}

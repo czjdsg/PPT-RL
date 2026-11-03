@@ -1,0 +1,12 @@
+{
+  "model": "qwen3.8-flash-next-unsloth-q8_0",
+  "endpoint": "http://127.0.0.1:8099",
+  "protocol": "anthropic",
+  "match_model": "qwen3.8-flash-next-unsloth-q8_0",
+  "match_endpoint": "http://127.0.0.1:8099",
+  "temperature": 0.2,
+  "generation_seed": 20261102,
+  "orientation_seed": 20261103,
+  "concurrency": 3,
+  "tie_policy": "random_group_swap"
+}

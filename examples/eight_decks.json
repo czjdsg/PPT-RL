@@ -1,0 +1,13 @@
+{
+  "task": {"id": "your-material-task"},
+  "decks": [
+    {"id": "r01", "pptx": "../data/r01.pptx", "pdf": "../data/r01.pdf"},
+    {"id": "r02", "pptx": "../data/r02.pptx", "pdf": "../data/r02.pdf"},
+    {"id": "r03", "pptx": "../data/r03.pptx", "pdf": "../data/r03.pdf"},
+    {"id": "r04", "pptx": "../data/r04.pptx", "pdf": "../data/r04.pdf"},
+    {"id": "r05", "pptx": "../data/r05.pptx", "pdf": "../data/r05.pdf"},
+    {"id": "r06", "pptx": "../data/r06.pptx", "pdf": "../data/r06.pdf"},
+    {"id": "r07", "pptx": "../data/r07.pptx", "pdf": "../data/r07.pdf"},
+    {"id": "r08", "pptx": "../data/r08.pptx", "pdf": "../data/r08.pdf"}
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "model": "qwen3.8-flash-next-unsloth-q8_0",
+  "endpoint": "http://127.0.0.1:8099",
+  "max_turns": 80,
+  "query": "Create a PPTX presentation in English based on the provided materials.",
+  "sampling": {"temperature": 1.0, "top_p": 0.95, "top_k": 20, "base_seed": 120100, "max_tokens": 32768, "thinking_budget": 8192}
+}

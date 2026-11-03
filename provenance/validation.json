@@ -1,0 +1,12 @@
+{
+  "validation_scope": "Offline tests and a real native Pi SDK loop against deterministic local mock HTTP; no model inference",
+  "pytest_tests_passed": 16,
+  "pi_sdk_version": "1.4.0",
+  "node_syntax_checks_passed": true,
+  "offline_pi_provider_requests": 2,
+  "offline_pi_tool_calls": 1,
+  "real_model_calls": 0,
+  "qualified_sft_rows_loaded_with_datasets": 4325,
+  "qualified_sft_image_files": 3373,
+  "train_message_tools_loss_preserved": true
+}

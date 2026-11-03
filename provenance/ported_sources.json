@@ -1,0 +1,111 @@
+{
+  "format": "ppt-rl-source-provenance-v1",
+  "note": "Published historical data retains the original request and code hashes. This repository ports the recorded algorithms to configurable paths; see modifications in Git.",
+  "files": [
+    {
+      "component": "src/ppt_rl/matching.py",
+      "original_sha256": "a144a47eb7069521f9a5c4772aca779507de2ddf57d78a4a28307afda423c6bb",
+      "original_name": "ppt_page_matcher.py",
+      "upstream_stage": "Recorded local pipeline, 2026-11-03",
+      "ported_sha256": "878786cbfb3f79c1ab3e5d48d78ed94b0f6d17038e3b291808c6efc07701025a"
+    },
+    {
+      "component": "src/ppt_rl/aesthetics.py",
+      "original_sha256": "a31e67fbadd396f4eeee111683fd6e8c2e8d79d4af7fc76ce7515f3f5bc48c7f",
+      "original_name": "ppt_aesthetic_judge.py",
+      "upstream_stage": "Recorded local pipeline, 2026-11-03",
+      "ported_sha256": "bc51919a3f16f5474d6f4fb3cc20b59443aa889e842756158080b94cc5887a43"
+    },
+    {
+      "component": "src/ppt_rl/bracket.py",
+      "original_sha256": "8ff1a1ee488c590f659310a7d7036a690af7f955e7894e40713ad59e5cf181a5",
+      "original_name": "tournament_core.py",
+      "upstream_stage": "Recorded local pipeline, 2026-11-03",
+      "ported_sha256": "8ff1a1ee488c590f659310a7d7036a690af7f955e7894e40713ad59e5cf181a5"
+    },
+    {
+      "component": "src/ppt_rl/metrics.py",
+      "original_sha256": "fe0f4938c25603ba2fcb4c93a2e43b230003c26832c9605a22331755f78eae53",
+      "original_name": "draw_metrics.py",
+      "upstream_stage": "Recorded local pipeline, 2026-11-03",
+      "ported_sha256": "fe0f4938c25603ba2fcb4c93a2e43b230003c26832c9605a22331755f78eae53"
+    },
+    {
+      "component": "inference/runner/harness.mjs",
+      "original_sha256": "8fc0162d0684684cd457c2609c100e7cc87fbd08a1cec35ba22fe9e069da0196",
+      "original_name": "harness.mjs",
+      "upstream_stage": "Recorded local pipeline, 2026-11-03",
+      "ported_sha256": "7633cd3f258d745aec75be6e2ecbed5e4710b25b386742a51caa7a21a79b831e"
+    },
+    {
+      "component": "inference/runner/pi_runner.mjs",
+      "original_sha256": "03888c618ce3c5e4544683faf5e45026ed2aeec2bf298f47ddbba5e64928ded8",
+      "original_name": "pi_runner.mjs",
+      "upstream_stage": "Recorded local pipeline, 2026-11-03",
+      "ported_sha256": "cfe4718654a21d8c76e7355644178d9cbee3af5161c20d983abfe5f4dfac72bf"
+    },
+    {
+      "component": "inference/runner/read_text.py",
+      "original_sha256": "ce63af2f5c591f3b5c34b81f97e7e6d09c24b5d753f92d256ab3498601a6d8d0",
+      "original_name": "read_text.py",
+      "upstream_stage": "Recorded local pipeline, 2026-11-03",
+      "ported_sha256": "ce63af2f5c591f3b5c34b81f97e7e6d09c24b5d753f92d256ab3498601a6d8d0"
+    },
+    {
+      "component": "inference/runner/pdf_tools.py",
+      "original_sha256": "a10d94b499027a583059e4c49f1bc88d075cf558bfc5da498b7358ca1ad5a933",
+      "original_name": "pdf_tools.py",
+      "upstream_stage": "Recorded local pipeline, 2026-11-03",
+      "ported_sha256": "a10d94b499027a583059e4c49f1bc88d075cf558bfc5da498b7358ca1ad5a933"
+    },
+    {
+      "component": "inference/runner/package.json",
+      "original_sha256": "4c8388ecded4f8f099ff7b1044cddc51dcde5500e82fbaed23fcf4876a1567ad",
+      "original_name": "package.json",
+      "upstream_stage": "Recorded local pipeline, 2026-11-03",
+      "ported_sha256": "4c8388ecded4f8f099ff7b1044cddc51dcde5500e82fbaed23fcf4876a1567ad"
+    },
+    {
+      "component": "inference/runner/package-lock.json",
+      "original_sha256": "657ff14beb2884d120612a9f26ec7c9bd551b632357ed79df069027ab8305855",
+      "original_name": "package-lock.json",
+      "upstream_stage": "Recorded local pipeline, 2026-11-03",
+      "ported_sha256": "657ff14beb2884d120612a9f26ec7c9bd551b632357ed79df069027ab8305855"
+    },
+    {
+      "component": "inference/runner/task-prompt.txt",
+      "original_sha256": "4302791569820236e64c5f274734fab60d55bf0e8ac31c7a2556cc779d905a21",
+      "original_name": "task-prompt.txt",
+      "upstream_stage": "Recorded local pipeline, 2026-11-03",
+      "ported_sha256": "4302791569820236e64c5f274734fab60d55bf0e8ac31c7a2556cc779d905a21"
+    },
+    {
+      "component": "inference/runner/queue_worker.py",
+      "original_sha256": "85b2509088f33b1c032c4a8b86e45d50e76d00635ac9a5f3455e6f78085cdc74",
+      "original_name": "queue_worker.py",
+      "upstream_stage": "Recorded local pipeline, 2026-11-03",
+      "ported_sha256": "afc27ac73bedeee1f23d4d329d0e4513f39bdbeaa2f5e1870658b90604f2c91c"
+    },
+    {
+      "component": "inference/runner/worker_core.py",
+      "original_sha256": "babe3b62ef1ab7f284e6a695745adadb7b692df0c62330a4674e36d655b51b99",
+      "original_name": "worker_core.py",
+      "upstream_stage": "Recorded local pipeline, 2026-11-03",
+      "ported_sha256": "d4d8397a58e78bdaad2bb09bd3061234ce60efea03c35c44194fc24d75376c69"
+    },
+    {
+      "component": "src/ppt_rl/engine.py",
+      "original_name": "run_tournament.py",
+      "original_sha256": "8b72e11b0415c2763530d012f9129ac4f7b35b92be7df152391927870452d3fe",
+      "upstream_stage": "Recorded pipeline, configurable port",
+      "ported_sha256": "60f14a9456dc035263af6ce909129d9fecf55a164edab54a4b2f6205911dd0b8"
+    },
+    {
+      "component": "src/ppt_rl/remote_judge.py",
+      "original_name": "remote_judge.py",
+      "original_sha256": "0bf34defa2bbe8288d8172e50728fb2d731f732521260a91e40cbab5e373bf62",
+      "upstream_stage": "Recorded pipeline, configurable port",
+      "ported_sha256": "0a2000803f48f8b89b0bb744220a0b75b48e2b4e422b8402834f38693a206ad6"
+    }
+  ]
+}

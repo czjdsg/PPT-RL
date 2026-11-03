@@ -1,0 +1,3 @@
+Compare the PPT page screenshots in Group A and Group B. Which group has the better overall aesthetic impression?
+The number of pages in either group must not affect your judgment. Focus on overall visual appeal.
+Return only a JSON object: winner must be "A", "B", or "tie", and reason must be one short sentence in English.

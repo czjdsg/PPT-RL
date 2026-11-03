@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ppt-rl"
+version = "0.1.0"
+description = "Pi PPTX rollout collection, text-only page alignment, visual duels and tournament rewards"
+requires-python = ">=3.10"
+dependencies = ["requests>=2.31", "python-pptx>=1.0", "PyMuPDF>=1.24", "pypdf>=5"]
+
+[project.optional-dependencies]
+hub = ["huggingface-hub>=1.0", "httpx>=0.27", "PyYAML>=6"]
+gateway = ["fastapi>=0.110", "uvicorn>=0.30", "httpx>=0.27"]
+test = ["pytest>=8"]
+
+[project.scripts]
+ppt-rl = "ppt_rl.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

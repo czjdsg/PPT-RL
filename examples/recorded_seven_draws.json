@@ -1,0 +1,114 @@
+{
+  "task": "thermodynamics",
+  "model": "qwen3.8-flash-next-unsloth-q8_0",
+  "draws": [
+    {
+      "id": "baseline",
+      "slots": [
+        "r04",
+        "r01",
+        "r03",
+        "r05",
+        "r06",
+        "r07",
+        "r08",
+        "r02"
+      ],
+      "draw_seed": 20261103,
+      "draw_method": "Previously recorded random shuffle; original slots preserved."
+    },
+    {
+      "id": "redraw",
+      "slots": [
+        "r06",
+        "r02",
+        "r05",
+        "r01",
+        "r08",
+        "r07",
+        "r03",
+        "r04"
+      ],
+      "draw_seed": 20261104,
+      "draw_method": "Previously recorded random shuffle; original slots preserved."
+    },
+    {
+      "id": "draw03",
+      "slots": [
+        "r01",
+        "r03",
+        "r04",
+        "r05",
+        "r02",
+        "r07",
+        "r06",
+        "r08"
+      ],
+      "draw_seed": null,
+      "draw_method": "Deterministic completion of a one-factorization extending the two existing disjoint first-round matchings; not selected by model outcomes."
+    },
+    {
+      "id": "draw04",
+      "slots": [
+        "r01",
+        "r02",
+        "r03",
+        "r06",
+        "r04",
+        "r07",
+        "r05",
+        "r08"
+      ],
+      "draw_seed": null,
+      "draw_method": "Deterministic completion of a one-factorization extending the two existing disjoint first-round matchings; not selected by model outcomes."
+    },
+    {
+      "id": "draw05",
+      "slots": [
+        "r01",
+        "r06",
+        "r03",
+        "r07",
+        "r04",
+        "r08",
+        "r05",
+        "r02"
+      ],
+      "draw_seed": null,
+      "draw_method": "Deterministic completion of a one-factorization extending the two existing disjoint first-round matchings; not selected by model outcomes."
+    },
+    {
+      "id": "draw06",
+      "slots": [
+        "r01",
+        "r07",
+        "r03",
+        "r08",
+        "r04",
+        "r02",
+        "r05",
+        "r06"
+      ],
+      "draw_seed": null,
+      "draw_method": "Deterministic completion of a one-factorization extending the two existing disjoint first-round matchings; not selected by model outcomes."
+    },
+    {
+      "id": "draw07",
+      "slots": [
+        "r01",
+        "r08",
+        "r03",
+        "r02",
+        "r04",
+        "r06",
+        "r05",
+        "r07"
+      ],
+      "draw_seed": null,
+      "draw_method": "Deterministic completion of a one-factorization extending the two existing disjoint first-round matchings; not selected by model outcomes."
+    }
+  ],
+  "orientation_seed": 20261103,
+  "generation_seed": 20261102,
+  "source": "Recorded 2026-11-03 experiment; source paths and large outputs are not Git payloads."
+}
