@@ -51,6 +51,8 @@ ppt-rl infer --materials ./data/materials --out ./runs/style \
 
 `inference/runner/queue_worker.py` 保留当前 SQLite 原子领取、租约续租、过期重领和旧结果拒收适配器，见 [推理与部署](docs/inference.md)。仅结构可读的 PPTX 不等于视觉或事实质量合格。
 
+成对的无模板/有模板采集见 [风格参考对照](docs/style_ab.md)。Bash 未提供 `timeout` 时没有默认超时，80轮预算不能限制单个工具调用；中断、恢复和外部文件访问需要单独留证。
+
 ## 2. 页面配对与分组
 
 ```bash

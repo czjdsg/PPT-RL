@@ -27,6 +27,10 @@ source read示例（Pi工具参数）：
 
 `extract_images=true`提取原PDF内嵌图；坐标单位PDF points。source images放在`materials/`。生成预览的读取按工具包装和路径策略限制，这不是隔离任意恶意shell的完整安全沙箱。
 
+Pi 的 Bash 工具可接收 `timeout`（秒），未提供时没有默认超时。80轮上限只约束已完成的 assistant turn，不能终止卡住的单次 Bash 调用。执行监督应保留工具挂起、中断与取消记录；有操作员介入的轨迹需要单列，不能算完全自主成功。原始输入哈希相同也不代表完整文件系统隔离：目录名称曝光与实际内容读取需要分别审计。
+
 SQLite适配器按任务claim/heartbeat/complete，180秒租约、20秒心跳，过期重领并拒绝旧worker回传；停止采样和上传数据是独立操作。保留`worker_core.py`及`queue_worker.py`便于复用原部署协议；初始化前生成新的`CODE_FILES.json`，固定任务输入包SHA和模型探针证据。单案例入口优先使用`ppt-rl infer`。
 
 风格对照只增加原始template及其source PDF，要求仅参考视觉设计、事实内容来自原材料。两组用相同基础query/seed/参数，保留所有预先指定尝试；原图与模板可见，生成图像反馈保持关闭。固定物理workspace后移动到各尝试目录，可使成对实验的cwd系统提示保持一致。
+
+冻结计划、交叉平衡条件顺序与失败保留的运行方式见 [Paired style-reference trials](style_ab.md)。模板已供给、模型解析过PPTX/XML、模板图像实际进入模型，是三种不同的证据，不能混为一谈。
